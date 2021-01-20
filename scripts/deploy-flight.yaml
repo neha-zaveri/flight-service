@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flight-service
+spec:
+  selector:
+    matchLabels:
+      app: flight-service
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template: # create pods using pod definition in this template
+    metadata:
+      labels:
+        app: flight-service
+    spec:
+      containers:
+        - name: flight-service
+          image: nehazaveri/flight-service
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8081
+              name: server
+          env:
+          - name: MY_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: MY_POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flight-service-svc
+  labels:
+    app: flight-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8081
+  selector:
+    app: flight-service
